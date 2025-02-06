@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Responsive meta tag -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Tuner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Guitar Tuner</h1>
+  </header>
+  <main>
+    <!-- Controls for input, test mode, volume, and tuning selection -->
+    <section id="controls">
+      <div id="input-controls">
+        <label for="audioSource">Audio Input:</label>
+        <select id="audioSource"></select>
+        <button id="startButton">Start Tuner</button>
+      </div>
+      <div id="test-controls">
+        <label for="testModeCheckbox">Test Mode:</label>
+        <input type="checkbox" id="testModeCheckbox">
+        <label for="testFrequency">Test Frequency (Hz):</label>
+        <input type="number" id="testFrequency" value="440" min="20" max="5000" step="1">
+      </div>
+      <div id="audio-controls">
+        <label for="volumeSlider">Volume:</label>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div id="tuning-controls">
+        <label for="tuningSelect">Select Tuning:</label>
+        <select id="tuningSelect">
+          <option value="Standard">Standard (E A D G B E)</option>
+          <option value="Drop D">Drop D (D A D G B E)</option>
+          <option value="Open G">Open G (D G D G B D)</option>
+          <option value="DADGAD">DADGAD (D A D G A D)</option>
+          <option value="Drop C">Drop C (C G C F A D)</option>
+          <option value="Custom">Custom</option>
+        </select>
+        <div id="customTuningInputs" style="display:none;">
+          <div>
+            <label for="customString6">6 (Low):</label>
+            <input type="number" id="customString6" value="82.41" step="0.1">
+          </div>
+          <div>
+            <label for="customString5">5:</label>
+            <input type="number" id="customString5" value="110.00" step="0.1">
+          </div>
+          <div>
+            <label for="customString4">4:</label>
+            <input type="number" id="customString4" value="146.83" step="0.1">
+          </div>
+          <div>
+            <label for="customString3">3:</label>
+            <input type="number" id="customString3" value="196.00" step="0.1">
+          </div>
+          <div>
+            <label for="customString2">2:</label>
+            <input type="number" id="customString2" value="246.94" step="0.1">
+          </div>
+          <div>
+            <label for="customString1">1 (High):</label>
+            <input type="number" id="customString1" value="329.63" step="0.1">
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Output section: tuner display and open strings -->
+    <section id="output">
+      <p id="message">No audio stream started.</p>
+      <div class="tuner">
+        <div class="tuner-bar-container">
+          <div class="tuner-bar" id="tunerBar"></div>
+          <div class="tuner-center-line"></div>
+        </div>
+        <div class="note-display">
+          <p>Note: <span id="note">--</span></p>
+          <p>Frequency: <span id="frequency">--</span> Hz</p>
+          <p>Cents: <span id="cents">--</span></p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Open Strings Section -->
+    <section id="open-strings">
+      <h2>Open Strings</h2>
+      <div class="string-buttons">
+        <!-- Initially populated with Standard tuning values; these will update -->
+        <button class="string-button" data-string-index="0">E (82.41 Hz)</button>
+        <button class="string-button" data-string-index="1">A (110.00 Hz)</button>
+        <button class="string-button" data-string-index="2">D (146.83 Hz)</button>
+        <button class="string-button" data-string-index="3">G (196.00 Hz)</button>
+        <button class="string-button" data-string-index="4">B (246.94 Hz)</button>
+        <button class="string-button" data-string-index="5">E (329.63 Hz)</button>
+      </div>
+    </section>
+  </main>
+  
+  <script src="script.js"></script>
+</body>
+</html>
