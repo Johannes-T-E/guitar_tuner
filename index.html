@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Responsive meta tag -->
+  <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Tuner</title>
   <link rel="stylesheet" href="styles.css">
@@ -17,7 +17,6 @@
       <div id="input-controls">
         <label for="audioSource">Audio Input:</label>
         <select id="audioSource"></select>
-        <button id="startButton">Start Tuner</button>
       </div>
       <div id="test-controls">
         <label for="testModeCheckbox">Test Mode:</label>
@@ -88,7 +87,7 @@
     <section id="open-strings">
       <h2>Open Strings</h2>
       <div class="string-buttons">
-        <!-- Initially populated with Standard tuning values; these will update -->
+        <!-- Initially populated with Standard tuning values -->
         <button class="string-button" data-string-index="0">E (82.41 Hz)</button>
         <button class="string-button" data-string-index="1">A (110.00 Hz)</button>
         <button class="string-button" data-string-index="2">D (146.83 Hz)</button>

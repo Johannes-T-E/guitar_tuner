@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const audioSelect = document.getElementById('audioSource');
-    const startButton = document.getElementById('startButton');
     const message = document.getElementById('message');
     const frequencyDisplay = document.getElementById('frequency');
     const noteDisplay = document.getElementById('note');
@@ -39,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             audioSelect.appendChild(option);
           }
         });
+        // Automatically start the tuner once devices are available.
+        startTuner();
       })
       .catch(error => {
         console.error('Error accessing media devices:', error);
@@ -49,37 +50,40 @@ document.addEventListener('DOMContentLoaded', () => {
     let analyser;
     let microphone;
     let testOscillator; // For test mode.
-    let globalGainNode; // For controlling output volume.
+    let globalGainNode; // For volume control.
     let rafID;
     
-    // For smoothing cents offset
+    // Smoothing for cents offset.
     let smoothedCents = 0;
     const smoothingFactor = 0.15;
     
-    // When Start Tuner is clicked, decide between test mode or microphone input.
-    startButton.addEventListener('click', () => {
-      // Stop any existing test oscillator.
+    // Function to (re)start the tuner based on current settings.
+    function startTuner() {
+      // Stop previous test oscillator if any.
       if (testOscillator) {
         testOscillator.stop();
         testOscillator.disconnect();
         testOscillator = null;
       }
-      // Create audioContext if needed.
+      // Disconnect previous microphone if any.
+      if (microphone) {
+        microphone.disconnect();
+        microphone = null;
+      }
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      // (Re)create a global gain node for test mode and open string playback.
+      // Create or update the global gain node.
       globalGainNode = audioContext.createGain();
       globalGainNode.gain.value = parseFloat(volumeSlider.value);
       
-      // In Test Mode, generate a test tone.
       if (testModeCheckbox.checked) {
+        // Use test mode: create a test oscillator.
         const testFreq = parseFloat(testFrequencyInput.value) || 440;
         testOscillator = audioContext.createOscillator();
         testOscillator.frequency.setValueAtTime(testFreq, audioContext.currentTime);
         testOscillator.type = 'sine';
         
-        // Route oscillator to gain node, then to analyser and destination.
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
         testOscillator.connect(globalGainNode);
@@ -88,9 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         testOscillator.start();
         message.textContent = `Test tone started at ${testFreq} Hz.`;
-        updatePitch();
       } else {
-        // Use the selected microphone.
+        // Use microphone input.
         const deviceId = audioSelect.value;
         const constraints = { audio: { deviceId: deviceId ? { exact: deviceId } : undefined } };
         navigator.mediaDevices.getUserMedia(constraints)
@@ -99,18 +102,25 @@ document.addEventListener('DOMContentLoaded', () => {
             microphone = audioContext.createMediaStreamSource(stream);
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 2048;
-            // In microphone mode, we do not route sound to destination.
             microphone.connect(analyser);
-            updatePitch();
           })
           .catch(error => {
             console.error('Error starting audio stream:', error);
             message.textContent = 'Error starting audio stream: ' + error.message;
           });
       }
-    });
+    }
     
-    // Volume slider changes the gain value (for test mode and open string tones)
+    // Listen for changes to automatically restart or update.
+    audioSelect.addEventListener('change', startTuner);
+    testModeCheckbox.addEventListener('change', startTuner);
+    testFrequencyInput.addEventListener('input', () => {
+      if (testModeCheckbox.checked && testOscillator) {
+        const testFreq = parseFloat(testFrequencyInput.value) || 440;
+        testOscillator.frequency.setValueAtTime(testFreq, audioContext.currentTime);
+        message.textContent = `Test tone updated to ${testFreq} Hz.`;
+      }
+    });
     volumeSlider.addEventListener('input', () => {
       if (globalGainNode) {
         globalGainNode.gain.value = parseFloat(volumeSlider.value);
@@ -122,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let tuningArray;
       const selectedTuning = tuningSelect.value;
       if (selectedTuning === "Custom") {
-        // Read custom tuning inputs.
         tuningArray = [
           parseFloat(document.getElementById('customString6').value),
           parseFloat(document.getElementById('customString5').value),
@@ -134,20 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         tuningArray = tunings[selectedTuning];
       }
-      // Update each string button's data and label.
       stringButtons.forEach((button, index) => {
-        // index 0 corresponds to string 6 (lowest), index 5 to string 1.
         const freq = tuningArray[index];
-        // Use the frequencyToNote function (defined later) to compute note name.
         const noteData = frequencyToNote(freq);
         button.setAttribute('data-frequency', freq);
         button.textContent = `${noteData.note}${noteData.octave} (${freq.toFixed(2)} Hz)`;
       });
     }
     
-    // Listen for changes on the tuning select.
     tuningSelect.addEventListener('change', () => {
-      // Show custom inputs if "Custom" is selected.
       if (tuningSelect.value === "Custom") {
         customTuningInputs.style.display = "flex";
       } else {
@@ -156,12 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOpenStrings();
     });
     
-    // Also update open strings when any custom tuning input changes.
     customTuningInputs.querySelectorAll('input[type="number"]').forEach(input => {
       input.addEventListener('input', updateOpenStrings);
     });
     
-    // Initialize open strings with default (Standard) tuning.
+    // Initialize open string buttons with the default (Standard) tuning.
     updateOpenStrings();
     
     // When an open string button is clicked, play its tone for 1 second.
@@ -172,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     
-    // Function to play a tone of given frequency and duration (in seconds).
+    // Function to play a tone (used for open string buttons).
     function playTone(freq, duration) {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -181,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
       osc.frequency.setValueAtTime(freq, audioContext.currentTime);
       osc.type = 'sine';
       
-      // Create a temporary gain node and set its gain based on the volume slider.
       const tempGain = audioContext.createGain();
       tempGain.gain.value = parseFloat(volumeSlider.value);
       osc.connect(tempGain);
@@ -191,8 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
       osc.stop(audioContext.currentTime + duration);
     }
     
-    // Continuously analyze the audio input (or test tone) and update the display.
+    // Continuously analyze the audio (or test tone) and update the tuner display.
     function updatePitch() {
+      if (!analyser) {
+        rafID = requestAnimationFrame(updatePitch);
+        return;
+      }
       const bufferLength = analyser.fftSize;
       const buffer = new Float32Array(bufferLength);
       analyser.getFloatTimeDomainData(buffer);
@@ -207,12 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Smooth the cents value.
         smoothedCents += (noteData.cents - smoothedCents) * smoothingFactor;
         const maxCents = 50;
-        let cents = Math.max(-maxCents, Math.min(maxCents, smoothedCents));
-        const maxPixelOffset = 100;
-        const offset = (cents / maxCents) * maxPixelOffset;
-        tunerBar.style.left = `calc(50% + ${offset}px)`;
+        // Clamp the cents value.
+        let cents = smoothedCents;
+        if (cents < -maxCents) cents = -maxCents;
+        if (cents > maxCents) cents = maxCents;
+        // Map cents from [-50, +50] to [0, 100]%
+        const pct = (cents + maxCents) / (2 * maxCents);
+        // Subtract half the width of the needle (15px if the needle is 30px wide)
+        tunerBar.style.left = `calc(${pct * 100}% - 15px)`;
     
-        // Interpolate color: 0 cents → green, max deviation → red.
         const normalized = Math.min(1, Math.abs(cents) / maxCents);
         const hue = 120 * (1 - normalized);
         tunerBar.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
@@ -226,10 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rafID = requestAnimationFrame(updatePitch);
     }
     
-    /**
-     * Auto-correlation algorithm for pitch detection.
-     * Returns the detected frequency (Hz) or -1 if signal is too weak.
-     */
+    // A basic auto-correlation algorithm for pitch detection.
     function autoCorrelate(buffer, sampleRate) {
       const SIZE = buffer.length;
       let rms = 0;
@@ -237,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rms += buffer[i] * buffer[i];
       }
       rms = Math.sqrt(rms / SIZE);
-      if (rms < 0.01) return -1;  // Too weak
+      if (rms < 0.01) return -1;
     
       const correlations = new Array(SIZE).fill(0);
       for (let lag = 0; lag < SIZE; lag++) {
@@ -262,10 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return sampleRate / bestLag;
     }
     
-    /**
-     * Converts a frequency (Hz) to the nearest musical note and calculates cents offset.
-     * A4 (440 Hz) is note 69.
-     */
+    // Converts a frequency (Hz) to the nearest musical note and cents offset (using A4 = 440 Hz).
     function frequencyToNote(freq) {
       const noteStrings = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
       const noteNum = 12 * (Math.log(freq / 440) / Math.log(2)) + 69;
@@ -280,5 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
         frequency: freq
       };
     }
+    
+    // Start the pitch detection loop.
+    updatePitch();
   });
   

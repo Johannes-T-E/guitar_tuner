@@ -121,11 +121,11 @@
   .tuner-bar {
     position: absolute;
     top: 0;
-    left: 50%;
+    /* The width of the needle is 30px; we'll subtract half of that (15px) when centering */
     width: 30px;
     height: 100%;
     background-color: green;
-    transform: translateX(-50%);
+    /* Initially, we let JavaScript set the left property using our mapping */
     transition: left 0.15s ease-out, background-color 0.15s ease-out;
   }
   
