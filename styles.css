@@ -80,15 +80,14 @@
   /* Custom Tuning Inputs */
   #customTuningInputs {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
     margin-top: 0.5rem;
   }
-  
-  #customTuningInputs div {
+  .custom-string {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
   }
   
   /* Output & Tuner */
@@ -121,11 +120,10 @@
   .tuner-bar {
     position: absolute;
     top: 0;
-    /* The width of the needle is 30px; we'll subtract half of that (15px) when centering */
-    width: 30px;
+    /* The needle is 30px wide; we’ll subtract 15px when centering */
+    width: 10px;
     height: 100%;
     background-color: green;
-    /* Initially, we let JavaScript set the left property using our mapping */
     transition: left 0.15s ease-out, background-color 0.15s ease-out;
   }
   

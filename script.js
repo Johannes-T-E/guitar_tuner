@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         testOscillator.type = 'sine';
         
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
+        analyser.fftSize = 8192;
         testOscillator.connect(globalGainNode);
         globalGainNode.connect(analyser);
         globalGainNode.connect(audioContext.destination);
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             message.textContent = 'Audio stream started.';
             microphone = audioContext.createMediaStreamSource(stream);
             analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
+            analyser.fftSize = 8192;
             microphone.connect(analyser);
           })
           .catch(error => {
@@ -133,16 +133,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectedTuning = tuningSelect.value;
       if (selectedTuning === "Custom") {
         tuningArray = [
-          parseFloat(document.getElementById('customString6').value),
-          parseFloat(document.getElementById('customString5').value),
-          parseFloat(document.getElementById('customString4').value),
-          parseFloat(document.getElementById('customString3').value),
-          parseFloat(document.getElementById('customString2').value),
-          parseFloat(document.getElementById('customString1').value)
+          getFrequencyFromNote(document.getElementById('customString6_note').value,
+                               document.getElementById('customString6_octave').value),
+          getFrequencyFromNote(document.getElementById('customString5_note').value,
+                               document.getElementById('customString5_octave').value),
+          getFrequencyFromNote(document.getElementById('customString4_note').value,
+                               document.getElementById('customString4_octave').value),
+          getFrequencyFromNote(document.getElementById('customString3_note').value,
+                               document.getElementById('customString3_octave').value),
+          getFrequencyFromNote(document.getElementById('customString2_note').value,
+                               document.getElementById('customString2_octave').value),
+          getFrequencyFromNote(document.getElementById('customString1_note').value,
+                               document.getElementById('customString1_octave').value)
         ];
       } else {
         tuningArray = tunings[selectedTuning];
       }
+      // Update each string button's data and label.
       stringButtons.forEach((button, index) => {
         const freq = tuningArray[index];
         const noteData = frequencyToNote(freq);
@@ -160,8 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOpenStrings();
     });
     
-    customTuningInputs.querySelectorAll('input[type="number"]').forEach(input => {
-      input.addEventListener('input', updateOpenStrings);
+    // Update open strings when any custom tuning selection changes.
+    customTuningInputs.querySelectorAll('select').forEach(select => {
+      select.addEventListener('change', updateOpenStrings);
     });
     
     // Initialize open string buttons with the default (Standard) tuning.
@@ -213,13 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Smooth the cents value.
         smoothedCents += (noteData.cents - smoothedCents) * smoothingFactor;
         const maxCents = 50;
-        // Clamp the cents value.
         let cents = smoothedCents;
         if (cents < -maxCents) cents = -maxCents;
         if (cents > maxCents) cents = maxCents;
         // Map cents from [-50, +50] to [0, 100]%
         const pct = (cents + maxCents) / (2 * maxCents);
-        // Subtract half the width of the needle (15px if the needle is 30px wide)
+        // Subtract half the needle's width (15px if needle is 30px wide)
         tunerBar.style.left = `calc(${pct * 100}% - 15px)`;
     
         const normalized = Math.min(1, Math.abs(cents) / maxCents);
@@ -229,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         frequencyDisplay.textContent = '--';
         noteDisplay.textContent = '--';
         centsDisplay.textContent = '--';
-        tunerBar.style.left = `calc(50% - 15px)`;
+        tunerBar.style.left = `calc(50% - 5px)`;
         tunerBar.style.backgroundColor = '#666';
       }
       rafID = requestAnimationFrame(updatePitch);
@@ -255,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     
       const minLag = Math.floor(sampleRate / 1000); // ~48 samples for 1000 Hz at 48000 Hz
-      const maxLag = Math.floor(sampleRate / 80);     // ~600 samples for 80 Hz at 48000 Hz
+      const maxLag = Math.floor(sampleRate / 20);     // ~600 samples for 80 Hz at 48000 Hz
       let bestLag = -1;
       let maxVal = -Infinity;
       for (let lag = minLag; lag <= maxLag; lag++) {
@@ -282,6 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cents: cents,
         frequency: freq
       };
+    }
+    
+    // Compute frequency from a note (string) and octave.
+    function getFrequencyFromNote(note, octave) {
+      const noteMap = { "C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11 };
+      const midi = 12 * (parseInt(octave) + 1) + noteMap[note];
+      return 440 * Math.pow(2, (midi - 69) / 12);
     }
     
     // Start the pitch detection loop.
