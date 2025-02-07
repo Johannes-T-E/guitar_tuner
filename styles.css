@@ -1,193 +1,144 @@
-/* Modern Dark-Mode & Responsive Styling */
-
 /* Reset & Box Sizing */
 * {
-    box-sizing: border-box;
-  }
-  
-  /* Global Styles */
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Helvetica Neue', sans-serif;
-    background-color: #121212;
-    color: #e0e0e0;
-    line-height: 1.6;
-  }
-  
-  /* Header */
-  header {
-    background: linear-gradient(90deg, #1e88e5, #42a5f5);
-    padding: 1rem;
-    text-align: center;
-  }
-  
+  box-sizing: border-box;
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background: linear-gradient(90deg, #1e88e5, #42a5f5);
+  padding: 1rem;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+/* Main Layout */
+main {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tuner Display Section (main focus) */
+#tuner-display {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Tuner Styles */
+.tuner-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 60px;
+  background-color: #333;
+  margin: 0 auto;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.tuner-bar {
+  position: absolute;
+  top: 0;
+  width: 30px; /* Needle width assumed to be 30px */
+  height: 100%;
+  background-color: green;
+  transition: left 0.15s ease-out, background-color 0.15s ease-out;
+}
+
+.tuner-center-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 100%;
+  background-color: #888;
+  transform: translateX(-50%);
+}
+
+.note-display p {
+  margin: 0.5rem 0;
+  font-size: 1.4rem;
+}
+
+/* Open Strings Section */
+#open-strings {
+  text-align: center;
+  margin: 2rem auto;
+}
+
+#open-strings h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.string-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.string-button {
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+  background: linear-gradient(145deg, #424242, #1e1e1e);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 4px 4px 6px #0d0d0d, -4px -4px 6px #272727;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.string-button:active {
+  transform: scale(0.95);
+  box-shadow: inset 4px 4px 6px #0d0d0d, inset -4px -4px 6px #272727;
+}
+
+/* Controls Section */
+#controls {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+}
+
+#controls label,
+#controls input,
+#controls select {
+  font-size: 1.2rem;
+  margin: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
   h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    color: #fff;
-  }
-  
-  /* Main Layout */
-  main {
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  /* Controls Section */
-  #controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  #input-controls,
-  #test-controls,
-  #audio-controls,
-  #tuning-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  #tuning-controls label {
-    font-weight: 600;
-  }
-  
-  select, button, input[type="number"], input[type="range"] {
-    padding: 0.8rem 1rem;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 5px;
-    outline: none;
-  }
-  
-  button {
-    background-color: #1e88e5;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #1565c0;
-  }
-  
-  /* Custom Tuning Inputs */
-  #customTuningInputs {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  .custom-string {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  /* Output & Tuner */
-  #output {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  #message {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .tuner {
-    margin-top: 1rem;
-  }
-  
-  .tuner-bar-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    height: 60px;
-    background-color: #333;
-    margin: 0 auto;
-    border-radius: 30px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
-  
-  .tuner-bar {
-    position: absolute;
-    top: 0;
-    /* The needle is 30px wide; we’ll subtract 15px when centering */
-    width: 10px;
-    height: 100%;
-    background-color: green;
-    transition: left 0.15s ease-out, background-color 0.15s ease-out;
-  }
-  
-  .tuner-center-line {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 3px;
-    height: 100%;
-    background-color: #888;
-    transform: translateX(-50%);
-  }
-  
-  .note-display p {
-    margin: 0.5rem 0;
-    font-size: 1.4rem;
-  }
-  
-  /* Open Strings Section */
-  #open-strings {
-    text-align: center;
-    margin: 2rem auto;
-  }
-  
-  #open-strings h2 {
     font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #fff;
   }
-  
-  .string-buttons {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .string-button {
-    padding: 0.8rem 1.2rem;
+  .note-display p {
     font-size: 1.2rem;
-    background: linear-gradient(145deg, #424242, #1e1e1e);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 4px 4px 6px #0d0d0d, -4px -4px 6px #272727;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
   }
-  
-  .string-button:active {
-    transform: scale(0.95);
-    box-shadow: inset 4px 4px 6px #0d0d0d, inset -4px -4px 6px #272727;
+  #controls label,
+  #controls input,
+  #controls select {
+    font-size: 1rem;
   }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 600px) {
-    h1 {
-      font-size: 2rem;
-    }
-    .note-display p {
-      font-size: 1.2rem;
-    }
-    select, button, input[type="number"], input[type="range"] {
-      font-size: 1rem;
-    }
-  }
-  
+}
